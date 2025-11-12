@@ -9,7 +9,7 @@
         <li class="nav-item"><a class="nav-link" href="guru.php">Guru</a></li>
         <li class="nav-item"><a class="nav-link" href="kelas.php">Kelas</a></li>
         <li class="nav-item"><a class="nav-link" href="mapel.php">Mata Pelajaran</a></li>
-        <li class="nav-item"><a class="nav-link" href="roster.php">Roster</a></li>
+        <li class="nav-item"><a class="nav-link" href="roster_view.php">Roster</a></li>
       </ul>
     </div>
   </div>

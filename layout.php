@@ -100,7 +100,7 @@ if (!isset($pageLocation)) $pageLocation = "Dashboard";
     <a href="guru.php" class="<?= ($pageLocation == "Guru") ? "active" : "" ?>">Guru</a>
     <a href="kelas.php" class="<?= ($pageLocation == "Kelas") ? "active" : "" ?>">Kelas</a>
     <a href="mapel.php" class="<?= ($pageLocation == "Mata Pelajaran") ? "active" : "" ?>">Mata Pelajaran</a>
-    <a href="roster.php" class="<?= ($pageLocation == "Roster") ? "active" : "" ?>">Roster</a>
+    <a href="roster_view.php" class="<?= ($pageLocation == "Roster") ? "active" : "" ?>">Roster</a>
   </div>
 
   <!-- Header -->

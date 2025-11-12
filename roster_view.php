@@ -4,7 +4,7 @@ $pageTitle = "Lihat Roster";
 $pageLocation = "Roster";
 include 'layout.php';
 
-// Daftar waktu les
+// Daftar jam pelajaran
 $lesList = [
   ['07:00', '08:30'],
   ['08:30', '10:00'],
@@ -14,7 +14,7 @@ $lesList = [
 
 // Ambil data roster
 $query = "
-  SELECT r.id_roster, g.nama AS guru, m.nama AS mapel, 
+  SELECT r.id_roster, g.nama AS guru, m.nama AS mapel,
          k.nama_kelas, r.hari, r.jam_mulai, r.jam_selesai
   FROM roster r
   JOIN guru g ON r.id_guru = g.id_guru
@@ -23,7 +23,7 @@ $query = "
 ";
 $result = $conn->query($query);
 
-// Buat array untuk tampilan
+// Bentuk array untuk tampilan tabel
 $rosterData = [];
 while ($r = $result->fetch_assoc()) {
   $jamKey = substr($r['jam_mulai'], 0, 5);
@@ -31,12 +31,10 @@ while ($r = $result->fetch_assoc()) {
     "{$r['mapel']}<br><small>{$r['guru']}</small>";
 }
 
-// Ambil daftar kelas dan guru
 $kelasList = $conn->query("SELECT * FROM kelas ORDER BY nama_kelas");
-$guruList = $conn->query("SELECT * FROM guru ORDER BY nama");
 ?>
 
-<div class="container-fluid mt-4">
+<div class="container-fluid">
   <h2 class="mb-4">Lihat Jadwal (Roster)</h2>
 
   <div class="table-responsive">
@@ -96,9 +94,6 @@ $guruList = $conn->query("SELECT * FROM guru ORDER BY nama");
           <label class="form-label">Pilih Guru</label>
           <select name="id_guru" id="guruSelect" class="form-select" required>
             <option value="">-- Pilih Guru --</option>
-            <?php foreach ($guruList as $g): ?>
-              <option value="<?= $g['id_guru'] ?>"><?= htmlspecialchars($g['nama']) ?></option>
-            <?php endforeach; ?>
           </select>
         </div>
 
@@ -118,7 +113,9 @@ $guruList = $conn->query("SELECT * FROM guru ORDER BY nama");
 </div>
 
 <script>
-  // Klik sel → buka modal
+  const guruSelect = document.getElementById('guruSelect');
+  const mapelSelect = document.getElementById('mapelSelect');
+
   document.querySelectorAll('.editable-cell').forEach(cell => {
     cell.addEventListener('click', () => {
       const hari = cell.dataset.hari;
@@ -129,19 +126,37 @@ $guruList = $conn->query("SELECT * FROM guru ORDER BY nama");
       document.getElementById('jamInput').value = jam;
       document.getElementById('kelasInput').value = kelas;
 
-      // Reset form setiap buka modal
-      document.getElementById('guruSelect').value = "";
-      document.getElementById('mapelSelect').innerHTML = '<option value="">-- Pilih Mapel --</option>';
-      document.getElementById('mapelSelect').disabled = true;
+      guruSelect.innerHTML = '<option value="">-- Memuat guru... --</option>';
+      guruSelect.disabled = true;
+      mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+      mapelSelect.disabled = true;
 
       const modal = new bootstrap.Modal(document.getElementById('editModal'));
       modal.show();
+
+      // Ambil guru yang masih tersedia
+      fetch(`get_available_guru.php?hari=${hari}&jam_mulai=${jam}`)
+        .then(res => res.json())
+        .then(data => {
+          guruSelect.innerHTML = '';
+          if (data.length > 0) {
+            guruSelect.innerHTML = '<option value="">-- Pilih Guru --</option>';
+            data.forEach(g => {
+              const opt = document.createElement('option');
+              opt.value = g.id_guru;
+              opt.textContent = g.nama;
+              guruSelect.appendChild(opt);
+            });
+            guruSelect.disabled = false;
+          } else {
+            const opt = document.createElement('option');
+            opt.textContent = 'Semua guru sudah terjadwal';
+            guruSelect.appendChild(opt);
+            guruSelect.disabled = true;
+          }
+        });
     });
   });
-
-  // Guru dipilih → ambil mapel via AJAX
-  const guruSelect = document.getElementById('guruSelect');
-  const mapelSelect = document.getElementById('mapelSelect');
 
   guruSelect.addEventListener('change', () => {
     const idGuru = guruSelect.value;
@@ -165,15 +180,10 @@ $guruList = $conn->query("SELECT * FROM guru ORDER BY nama");
           mapelSelect.disabled = false;
         } else {
           const opt = document.createElement('option');
-          opt.value = '';
           opt.textContent = 'Guru ini belum punya mapel';
           mapelSelect.appendChild(opt);
           mapelSelect.disabled = true;
         }
-      })
-      .catch(err => {
-        console.error('Error:', err);
-        alert('Gagal mengambil data mapel!');
       });
   });
 </script>

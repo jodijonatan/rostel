@@ -24,7 +24,7 @@ $lesList = [
   ['15:00', '15:30'],
 ];
 
-// Ambil data rosterr
+// Ambil data roster
 $query = "
   SELECT r.id_roster, g.nama AS guru, m.nama AS mapel,
          k.nama_kelas, r.hari, r.jam_mulai, r.jam_selesai

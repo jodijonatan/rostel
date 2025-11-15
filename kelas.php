@@ -51,22 +51,6 @@ if (isset($_GET['edit'])) {
     <div class="alert alert-danger"><?= $error ?></div>
   <?php endif; ?>
 
-  <!-- ================= SEARCH BAR (LIVE SEARCH) ================= -->
-  <div class="row mb-3 g-2">
-    <div class="col-md-4">
-      <input type="text" id="searchInput" class="form-control" placeholder="Cari kelas...">
-    </div>
-
-    <div class="col-md-3">
-      <select id="filterAngkatan" class="form-control">
-        <option value="">Filter Angkatan</option>
-        <option value="X">X</option>
-        <option value="XI">XI</option>
-        <option value="XII">XII</option>
-      </select>
-    </div>
-  </div>
-
   <!-- ================= FORM TAMBAH / EDIT ================= -->
   <form method="post" class="mb-4">
     <div class="row g-2">
@@ -96,6 +80,22 @@ if (isset($_GET['edit'])) {
       </div>
     </div>
   </form>
+
+  <!-- ================= SEARCH BAR (LIVE SEARCH) ================= -->
+  <div class="row mb-3 g-2">
+    <div class="col-md-4">
+      <input type="text" id="searchInput" class="form-control" placeholder="Cari kelas...">
+    </div>
+
+    <div class="col-md-3">
+      <select id="filterAngkatan" class="form-control">
+        <option value="">Filter Angkatan</option>
+        <option value="X">X</option>
+        <option value="XI">XI</option>
+        <option value="XII">XII</option>
+      </select>
+    </div>
+  </div>
 
   <!-- ================= TABLE ================= -->
   <div class="table-responsive">

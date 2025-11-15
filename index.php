@@ -11,38 +11,53 @@ $total_mapel = $conn->query("SELECT COUNT(*) as total FROM mata_pelajaran")->fet
 $total_roster = $conn->query("SELECT COUNT(*) as total FROM roster")->fetch_assoc()['total'];
 ?>
 
-<div class="row mt-4">
+<!-- Sambutan Admin -->
+<div class="p-5 mb-4 bg-info rounded-3 text-center">
+  <h1 class="display-5 fw-bold">Selamat Datang, Admin!</h1>
+  <p class="col-md-8 mx-auto">Kelola roster dengan mudah melalui website ini</p>
+</div>
+
+<!-- Statistik Cards -->
+<div class="row g-4">
   <div class="col-md-3">
-    <div class="card text-white bg-primary mb-3">
-      <div class="card-body">
-        <h5 class="card-title">Guru</h5>
-        <p class="card-text"><?= $total_guru ?> Guru</p>
+    <a href="guru.php" class="text-decoration-none">
+      <div class="card text-white bg-primary h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Guru</h5>
+          <p class="card-text fs-4"><?= $total_guru ?> Guru</p>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
   <div class="col-md-3">
-    <div class="card text-white bg-success mb-3">
-      <div class="card-body">
-        <h5 class="card-title">Kelas</h5>
-        <p class="card-text"><?= $total_kelas ?> Kelas</p>
+    <a href="kelas.php" class="text-decoration-none">
+      <div class="card text-white bg-success h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Kelas</h5>
+          <p class="card-text fs-4"><?= $total_kelas ?> Kelas</p>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
   <div class="col-md-3">
-    <div class="card text-white bg-warning mb-3">
-      <div class="card-body">
-        <h5 class="card-title">Mata Pelajaran</h5>
-        <p class="card-text"><?= $total_mapel ?> Mapel</p>
+    <a href="mapel.php" class="text-decoration-none">
+      <div class="card text-white bg-warning h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Mata Pelajaran</h5>
+          <p class="card-text fs-4"><?= $total_mapel ?> Mapel</p>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
   <div class="col-md-3">
-    <div class="card text-white bg-danger mb-3">
-      <div class="card-body">
-        <h5 class="card-title">Roster</h5>
-        <p class="card-text"><?= $total_roster ?> Jadwal</p>
+    <a href="roster_view.php" class="text-decoration-none">
+      <div class="card text-white bg-danger h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title">Roster</h5>
+          <p class="card-text fs-4"><?= $total_roster ?> Jadwal</p>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 </div>
 

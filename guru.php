@@ -4,7 +4,7 @@ $pageTitle = "Manajemen Guru";
 $pageLocation = "Guru";
 include 'layout.php'; // Sidebar + header
 
-// Tambah guru
+// ----------- TAMBAH GURU -----------
 if (isset($_POST['tambah'])) {
   $nama = $_POST['nama'];
   $mapel_ids = $_POST['mapel'] ?? [];
@@ -12,13 +12,11 @@ if (isset($_POST['tambah'])) {
   if (empty($mapel_ids)) {
     $error = "Pilih minimal satu mata pelajaran untuk guru!";
   } else {
-    // Simpan guru baru
     $stmt = $conn->prepare("INSERT INTO guru (nama) VALUES (?)");
     $stmt->bind_param("s", $nama);
     $stmt->execute();
     $id_guru_baru = $stmt->insert_id;
 
-    // Simpan relasi guru-mapel
     foreach ($mapel_ids as $id_mapel) {
       $conn->query("INSERT INTO guru_mapel (id_guru, id_mapel) VALUES ($id_guru_baru, $id_mapel)");
     }
@@ -28,7 +26,7 @@ if (isset($_POST['tambah'])) {
   }
 }
 
-// Hapus guru
+// ----------- HAPUS GURU -----------
 if (isset($_GET['hapus'])) {
   $id = $_GET['hapus'];
   $conn->query("DELETE FROM guru WHERE id_guru=$id");
@@ -36,22 +34,21 @@ if (isset($_GET['hapus'])) {
   exit;
 }
 
-// Ambil data guru untuk edit
+// ----------- AMBIL DATA EDIT GURU -----------
 $editMode = false;
+$editMapel = [];
 if (isset($_GET['edit'])) {
   $editMode = true;
   $id_edit = $_GET['edit'];
   $editData = $conn->query("SELECT * FROM guru WHERE id_guru=$id_edit")->fetch_assoc();
 
-  // Ambil mapel guru
-  $editMapel = [];
   $res = $conn->query("SELECT id_mapel FROM guru_mapel WHERE id_guru=$id_edit");
   while ($row = $res->fetch_assoc()) {
     $editMapel[] = $row['id_mapel'];
   }
 }
 
-// Update guru
+// ----------- UPDATE GURU -----------
 if (isset($_POST['update'])) {
   $id = $_POST['id_guru'];
   $nama = $_POST['nama'];
@@ -74,18 +71,33 @@ if (isset($_POST['update'])) {
   }
 }
 
-// Ambil semua guru + mapelnya
+// ----------- FILTER SEARCH -----------
+$filter = "";
+if (isset($_GET['search']) && $_GET['search'] != "") {
+  $keyword = $conn->real_escape_string($_GET['search']);
+  $filter = "WHERE g.nama LIKE '%$keyword%'";
+}
+
+// ----------- AMBIL DAFTAR GURU -----------
 $result = $conn->query("
-  SELECT g.id_guru, g.nama, GROUP_CONCAT(m.nama SEPARATOR ', ') AS mapel
-  FROM guru g
-  LEFT JOIN guru_mapel gm ON g.id_guru = gm.id_guru
-  LEFT JOIN mata_pelajaran m ON gm.id_mapel = m.id_mapel
-  GROUP BY g.id_guru
-  ORDER BY g.id_guru ASC
+    SELECT g.id_guru, g.nama, GROUP_CONCAT(m.nama SEPARATOR ', ') AS mapel
+    FROM guru g
+    LEFT JOIN guru_mapel gm ON g.id_guru = gm.id_guru
+    LEFT JOIN mata_pelajaran m ON gm.id_mapel = m.id_mapel
+    $filter
+    GROUP BY g.id_guru
+    ORDER BY g.id_guru ASC
 ");
 
-// Ambil semua mapel untuk modal
+// ----------- AMBIL DAFTAR MAPEL -----------
 $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
+
+// ----------- CEK KETIDAKTERSEDIAAN -----------
+$cekUnavailable = $conn->query("SELECT id_guru, COUNT(*) AS total FROM guru_unavailable GROUP BY id_guru");
+$dataUnavailable = [];
+while ($u = $cekUnavailable->fetch_assoc()) {
+  $dataUnavailable[$u['id_guru']] = $u['total'];
+}
 ?>
 
 <div class="container-fluid">
@@ -95,7 +107,21 @@ $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
     <div class="alert alert-danger"><?= $error ?></div>
   <?php endif; ?>
 
-  <!-- Form tambah/edit guru -->
+  <!-- ========== SEARCH BAR ========== -->
+  <form method="get" class="mb-3">
+    <div class="input-group" style="max-width:350px;">
+      <input type="text" name="search" class="form-control" placeholder="Cari nama guru..."
+        value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+
+      <button class="btn btn-primary">Cari</button>
+
+      <?php if (isset($_GET['search']) && $_GET['search'] != ''): ?>
+        <a href="guru.php" class="btn btn-secondary">Reset</a>
+      <?php endif; ?>
+    </div>
+  </form>
+
+  <!-- ========== FORM TAMBAH / EDIT GURU ========== -->
   <form method="post" class="mb-4">
     <div class="row g-2 align-items-center">
       <div class="col-md-5">
@@ -104,26 +130,22 @@ $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
       </div>
 
       <div class="col-md-5">
-        <!-- Tombol pilih mapel -->
         <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#mapelModal">
           Pilih Mapel
         </button>
 
-        <!-- Simpan mapel terpilih -->
         <div id="selectedMapel" class="mt-2 text-secondary small">
-          <?php if ($editMode): ?>
-            <?php
-            $selectedMapelNames = [];
-            if (!empty($editMapel)) {
-              $in = implode(',', $editMapel);
-              $r = $conn->query("SELECT nama FROM mata_pelajaran WHERE id_mapel IN ($in)");
-              while ($m = $r->fetch_assoc()) $selectedMapelNames[] = $m['nama'];
-            }
-            echo implode(', ', $selectedMapelNames);
-            ?>
-          <?php else: ?>
-            Belum ada mapel dipilih
-          <?php endif; ?>
+          <?php
+          if ($editMode && !empty($editMapel)) {
+            $in = implode(',', $editMapel);
+            $names = [];
+            $r = $conn->query("SELECT nama FROM mata_pelajaran WHERE id_mapel IN ($in)");
+            while ($m = $r->fetch_assoc()) $names[] = $m['nama'];
+            echo implode(', ', $names);
+          } else {
+            echo "Belum ada mapel dipilih";
+          }
+          ?>
         </div>
       </div>
 
@@ -137,31 +159,32 @@ $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
         <?php endif; ?>
       </div>
     </div>
-
-    <!-- Input hidden untuk menyimpan id_mapel -->
     <div id="mapelInputs"></div>
   </form>
 
-  <!-- Modal pilih mapel -->
-  <div class="modal fade" id="mapelModal" tabindex="-1" aria-labelledby="mapelModalLabel" aria-hidden="true">
+  <!-- ========== MODAL PILIH MAPEL ========== -->
+  <div class="modal fade" id="mapelModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="mapelModalLabel">Pilih Mata Pelajaran</h5>
+          <h5 class="modal-title">Pilih Mata Pelajaran</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+
         <div class="modal-body">
           <?php while ($mapel = $mapelList->fetch_assoc()): ?>
             <div class="form-check">
               <input class="form-check-input mapel-checkbox" type="checkbox"
-                value="<?= $mapel['id_mapel'] ?>" id="mapel<?= $mapel['id_mapel'] ?>"
-                <?= $editMode && in_array($mapel['id_mapel'], $editMapel ?? []) ? 'checked' : '' ?>>
+                value="<?= $mapel['id_mapel'] ?>"
+                id="mapel<?= $mapel['id_mapel'] ?>"
+                <?= $editMode && in_array($mapel['id_mapel'], $editMapel) ? 'checked' : '' ?>>
               <label class="form-check-label" for="mapel<?= $mapel['id_mapel'] ?>">
                 <?= htmlspecialchars($mapel['nama']) ?>
               </label>
             </div>
           <?php endwhile; ?>
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" id="saveMapelBtn" data-bs-dismiss="modal">Simpan Pilihan</button>
         </div>
@@ -169,27 +192,41 @@ $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
     </div>
   </div>
 
-  <!-- Daftar guru -->
+  <!-- ========== TABEL GURU ========== -->
   <div class="table-responsive mt-4">
     <table class="table table-bordered table-striped">
       <thead class="table-primary">
         <tr>
           <th>ID</th>
           <th>Nama</th>
-          <th>Mata Pelajaran Dibawa</th>
+          <th>Mata Pelajaran</th>
           <th>Aksi</th>
         </tr>
       </thead>
+
       <tbody>
         <?php while ($guru = $result->fetch_assoc()): ?>
+          <?php
+          $punya = isset($dataUnavailable[$guru['id_guru']]);
+          $label = $punya ? "Edit Ketidaktersediaan" : "Atur Ketidaktersediaan";
+          $btnColor = $punya ? "btn-warning" : "btn-info";
+          ?>
           <tr>
             <td><?= $guru['id_guru'] ?></td>
             <td><?= htmlspecialchars($guru['nama']) ?></td>
-            <td><?= htmlspecialchars($guru['mapel'] ?: '-') ?></td>
+            <td><?= $guru['mapel'] ?: '-' ?></td>
+
             <td>
               <a href="guru.php?edit=<?= $guru['id_guru'] ?>" class="btn btn-warning btn-sm">Edit</a>
-              <a href="guru.php?hapus=<?= $guru['id_guru'] ?>" class="btn btn-danger btn-sm"
-                onclick="return confirm('Yakin ingin menghapus guru ini?')">Hapus</a>
+
+              <a href="guru.php?hapus=<?= $guru['id_guru'] ?>"
+                onclick="return confirm('Yakin ingin menghapus?')"
+                class="btn btn-danger btn-sm">Hapus</a>
+
+              <a href="guru_unavailable.php?id_guru=<?= $guru['id_guru'] ?>"
+                class="btn <?= $btnColor ?> btn-sm">
+                <?= $label ?>
+              </a>
             </td>
           </tr>
         <?php endwhile; ?>
@@ -199,21 +236,19 @@ $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-  // Simpan mapel dari modal ke form
   document.getElementById("saveMapelBtn").addEventListener("click", function() {
     const selected = Array.from(document.querySelectorAll(".mapel-checkbox:checked"));
-    const selectedNames = selected.map(el => el.nextElementSibling.textContent.trim());
-    const selectedIds = selected.map(el => el.value);
+    const names = selected.map(el => el.nextElementSibling.textContent.trim());
+    const ids = selected.map(el => el.value);
 
-    // Tampilkan di teks
     document.getElementById("selectedMapel").textContent =
-      selectedNames.length ? selectedNames.join(", ") : "Belum ada mapel dipilih";
+      names.length ? names.join(", ") : "Belum ada mapel dipilih";
 
-    // Buat input hidden
     const container = document.getElementById("mapelInputs");
     container.innerHTML = "";
-    selectedIds.forEach(id => {
+    ids.forEach(id => {
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = "mapel[]";
@@ -222,6 +257,7 @@ $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
     });
   });
 </script>
+
 </body>
 
 </html>

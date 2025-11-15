@@ -252,10 +252,12 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function() {
 
-    // --- LOGIKA UTAMA: FULL DAY CHECKBOX ---
+    // --- LOGIKA UTAMA: FULL DAY CHECKBOX (Tidak ada perubahan) ---
     document.querySelectorAll('.fullDayCheck').forEach(chk => {
       chk.addEventListener('change', function() {
         const hari = this.dataset.dayTarget;
@@ -267,20 +269,18 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
           statusText.textContent = 'FULL DAY';
           statusText.className = 'status-indicator status-full statusText';
         } else {
-          jamSection.style.display = 'flex'; // Gunakan flex untuk row g-2
+          jamSection.style.display = 'flex';
           statusText.textContent = 'PARTIAL';
           statusText.className = 'status-indicator status-unavailable statusText';
         }
 
-        // Pastikan checkbox Hari tercentang saat Full Day atau Partial diaktifkan
         document.getElementById(`chk${hari}`).checked = true;
       });
     });
 
-    // --- LOGIKA KARTU: TOGGLE KETERSEDIAAN HARI ---
+    // --- LOGIKA KARTU: TOGGLE KETERSEDIAAN HARI (Perbaikan ada di sini!) ---
     document.querySelectorAll('.card-header-toggle').forEach(header => {
       header.addEventListener('click', function(e) {
-        // Mencegah klik checkbox anak jika yang diklik adalah header
         if (e.target.closest('.form-check')) return;
 
         const card = this.closest('.card');
@@ -289,14 +289,19 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
         const jamSection = card.querySelector('.jamSection');
         const fullDayCheck = card.querySelector('.fullDayCheck');
 
+        // Dapatkan elemen collapse
+        const collapseEl = document.getElementById(this.dataset.bsTarget.substring(1));
+        // Buat atau dapatkan instance Collapse
+        const collapse = new bootstrap.Collapse(collapseEl, {
+          toggle: false
+        });
+
         // Toggle checkbox Hari secara manual
         const isChecked = !checkbox.checked;
         checkbox.checked = isChecked;
 
         if (isChecked) {
           // Jika diaktifkan (Unavailable)
-
-          // Cek status Full Day
           const isFull = fullDayCheck.checked;
 
           if (isFull) {
@@ -308,6 +313,9 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
             statusText.className = 'status-indicator status-unavailable statusText';
             jamSection.style.display = 'flex';
           }
+
+          // --- PERBAIKAN: BUKA COLLAPSE ---
+          collapse.show();
           card.classList.add('border-warning');
 
         } else {
@@ -317,17 +325,13 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
           jamSection.style.display = 'none';
           card.classList.remove('border-warning');
 
-          // Pastikan collapse ditutup
-          const collapseEl = document.getElementById(this.dataset.bsTarget.substring(1));
-          const collapse = bootstrap.Collapse.getInstance(collapseEl);
-          if (collapse) {
-            collapse.hide();
-          }
+          // --- PERBAIKAN: TUTUP COLLAPSE ---
+          collapse.hide();
         }
       });
     });
 
-    // --- Logika untuk memastikan jam section tersembunyi/terlihat saat load
+    // --- Logika untuk memastikan jam section tersembunyi/terlihat saat load (Tidak ada perubahan) ---
     document.querySelectorAll('.day-card').forEach(card => {
       const dayCheckbox = card.querySelector('.day-checkbox');
       const fullDayCheck = card.querySelector('.fullDayCheck');

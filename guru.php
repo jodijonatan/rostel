@@ -2,7 +2,7 @@
 include 'koneksi.php';
 $pageTitle = "Manajemen Guru";
 $pageLocation = "Guru";
-include 'layout.php'; // Sidebar + header
+include 'layout.php';
 
 // ----------- TAMBAH GURU -----------
 if (isset($_POST['tambah'])) {
@@ -34,18 +34,17 @@ if (isset($_GET['hapus'])) {
   exit;
 }
 
-// ----------- AMBIL DATA EDIT GURU -----------
+// ----------- AMBIL DATA EDIT -----------
 $editMode = false;
 $editMapel = [];
+
 if (isset($_GET['edit'])) {
   $editMode = true;
   $id_edit = $_GET['edit'];
   $editData = $conn->query("SELECT * FROM guru WHERE id_guru=$id_edit")->fetch_assoc();
 
   $res = $conn->query("SELECT id_mapel FROM guru_mapel WHERE id_guru=$id_edit");
-  while ($row = $res->fetch_assoc()) {
-    $editMapel[] = $row['id_mapel'];
-  }
+  while ($row = $res->fetch_assoc()) $editMapel[] = $row['id_mapel'];
 }
 
 // ----------- UPDATE GURU -----------
@@ -71,25 +70,17 @@ if (isset($_POST['update'])) {
   }
 }
 
-// ----------- FILTER SEARCH -----------
-$filter = "";
-if (isset($_GET['search']) && $_GET['search'] != "") {
-  $keyword = $conn->real_escape_string($_GET['search']);
-  $filter = "WHERE g.nama LIKE '%$keyword%'";
-}
-
-// ----------- AMBIL DAFTAR GURU -----------
+// ----------- AMBIL DATA GURU -----------
 $result = $conn->query("
-    SELECT g.id_guru, g.nama, GROUP_CONCAT(m.nama SEPARATOR ', ') AS mapel
-    FROM guru g
-    LEFT JOIN guru_mapel gm ON g.id_guru = gm.id_guru
-    LEFT JOIN mata_pelajaran m ON gm.id_mapel = m.id_mapel
-    $filter
-    GROUP BY g.id_guru
-    ORDER BY g.id_guru ASC
+  SELECT g.id_guru, g.nama, GROUP_CONCAT(m.nama SEPARATOR ', ') AS mapel
+  FROM guru g
+  LEFT JOIN guru_mapel gm ON g.id_guru = gm.id_guru
+  LEFT JOIN mata_pelajaran m ON gm.id_mapel = m.id_mapel
+  GROUP BY g.id_guru
+  ORDER BY g.id_guru ASC
 ");
 
-// ----------- AMBIL DAFTAR MAPEL -----------
+// ----------- AMBIL LIST MAPEL -----------
 $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
 
 // ----------- CEK KETIDAKTERSEDIAAN -----------
@@ -107,21 +98,21 @@ while ($u = $cekUnavailable->fetch_assoc()) {
     <div class="alert alert-danger"><?= $error ?></div>
   <?php endif; ?>
 
-  <!-- ========== SEARCH BAR ========== -->
-  <form method="get" class="mb-3">
-    <div class="input-group" style="max-width:350px;">
-      <input type="text" name="search" class="form-control" placeholder="Cari nama guru..."
-        value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
-
-      <button class="btn btn-primary">Cari</button>
-
-      <?php if (isset($_GET['search']) && $_GET['search'] != ''): ?>
-        <a href="guru.php" class="btn btn-secondary">Reset</a>
-      <?php endif; ?>
+  <!-- ========== LIVE SEARCH + SORT ========== -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <input type="text" id="searchGuru" class="form-control" placeholder="Cari nama guru...">
     </div>
-  </form>
 
-  <!-- ========== FORM TAMBAH / EDIT GURU ========== -->
+    <div class="col-md-3">
+      <select id="sortSelect" class="form-select">
+        <option value="asc">Urutkan: Nama (A-Z)</option>
+        <option value="desc">Urutkan: Nama (Z-A)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ========== FORM TAMBAH / EDIT ========== -->
   <form method="post" class="mb-4">
     <div class="row g-2 align-items-center">
       <div class="col-md-5">
@@ -178,6 +169,7 @@ while ($u = $cekUnavailable->fetch_assoc()) {
                 value="<?= $mapel['id_mapel'] ?>"
                 id="mapel<?= $mapel['id_mapel'] ?>"
                 <?= $editMode && in_array($mapel['id_mapel'], $editMapel) ? 'checked' : '' ?>>
+
               <label class="form-check-label" for="mapel<?= $mapel['id_mapel'] ?>">
                 <?= htmlspecialchars($mapel['nama']) ?>
               </label>
@@ -194,7 +186,7 @@ while ($u = $cekUnavailable->fetch_assoc()) {
 
   <!-- ========== TABEL GURU ========== -->
   <div class="table-responsive mt-4">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" id="guruTable">
       <thead class="table-primary">
         <tr>
           <th>ID</th>
@@ -213,7 +205,7 @@ while ($u = $cekUnavailable->fetch_assoc()) {
           ?>
           <tr>
             <td><?= $guru['id_guru'] ?></td>
-            <td><?= htmlspecialchars($guru['nama']) ?></td>
+            <td class="namaGuru"><?= htmlspecialchars($guru['nama']) ?></td>
             <td><?= $guru['mapel'] ?: '-' ?></td>
 
             <td>
@@ -238,6 +230,7 @@ while ($u = $cekUnavailable->fetch_assoc()) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+  // ========== SIMPAN MAPEL DARI MODAL ==========
   document.getElementById("saveMapelBtn").addEventListener("click", function() {
     const selected = Array.from(document.querySelectorAll(".mapel-checkbox:checked"));
     const names = selected.map(el => el.nextElementSibling.textContent.trim());
@@ -255,6 +248,32 @@ while ($u = $cekUnavailable->fetch_assoc()) {
       input.value = id;
       container.appendChild(input);
     });
+  });
+
+  // ========== LIVE SEARCH ==========
+  document.getElementById("searchGuru").addEventListener("keyup", function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#guruTable tbody tr");
+
+    rows.forEach(row => {
+      let namaGuru = row.querySelector(".namaGuru").textContent.toLowerCase();
+      row.style.display = namaGuru.includes(filter) ? "" : "none";
+    });
+  });
+
+  // ========== SORTING A-Z & Z-A ==========
+  document.getElementById("sortSelect").addEventListener("change", function() {
+    let mode = this.value; // asc / desc
+    let table = document.getElementById("guruTable");
+    let rows = Array.from(table.querySelectorAll("tbody tr"));
+
+    rows.sort((a, b) => {
+      let A = a.querySelector(".namaGuru").textContent.toLowerCase();
+      let B = b.querySelector(".namaGuru").textContent.toLowerCase();
+      return mode === "asc" ? A.localeCompare(B) : B.localeCompare(A);
+    });
+
+    rows.forEach(r => table.querySelector("tbody").appendChild(r));
   });
 </script>
 

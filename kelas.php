@@ -5,46 +5,6 @@ $pageLocation = "Kelas";
 include 'layout.php'; // Sidebar + header
 
 // =============================
-//  SEARCH & FILTER
-// =============================
-$keyword = isset($_GET['search']) ? trim($_GET['search']) : "";
-$filter_angkatan = isset($_GET['angkatan']) ? trim($_GET['angkatan']) : "";
-
-// =============================
-//  PAGINATION
-// =============================
-$limit = 10; // jumlah data per halaman
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$start = ($page - 1) * $limit;
-
-// =============================
-//  QUERY DASAR
-// =============================
-$query = "SELECT * FROM kelas WHERE 1";
-$countQuery = "SELECT COUNT(*) AS total FROM kelas WHERE 1";
-
-// SEARCH
-if ($keyword !== "") {
-  $query .= " AND (nama_kelas LIKE '%$keyword%' OR angkatan LIKE '%$keyword%')";
-  $countQuery .= " AND (nama_kelas LIKE '%$keyword%' OR angkatan LIKE '%$keyword%')";
-}
-
-// FILTER ANGKATAN
-if ($filter_angkatan !== "") {
-  $query .= " AND angkatan = '$filter_angkatan'";
-  $countQuery .= " AND angkatan = '$filter_angkatan'";
-}
-
-// HITUNG TOTAL DATA
-$countResult = $conn->query($countQuery);
-$totalRows = $countResult->fetch_assoc()['total'];
-$totalPages = ceil($totalRows / $limit);
-
-// PAGINATION LIMIT
-$query .= " LIMIT $start, $limit";
-$result = $conn->query($query);
-
-// =============================
 //  TAMBAH KELAS
 // =============================
 if (isset($_POST['tambah'])) {
@@ -82,64 +42,32 @@ if (isset($_GET['edit'])) {
   $id_edit = $_GET['edit'];
   $editData = $conn->query("SELECT * FROM kelas WHERE id_kelas=$id_edit")->fetch_assoc();
 }
-
-// =============================
-//  UPDATE KELAS
-// =============================
-if (isset($_POST['update'])) {
-  $id = $_POST['id_kelas'];
-  $nama_kelas = $_POST['nama_kelas'];
-  $angkatan = $_POST['angkatan'];
-
-  $cek = $conn->query("SELECT * FROM kelas WHERE nama_kelas='$nama_kelas' AND angkatan='$angkatan' AND id_kelas!='$id'");
-  if ($cek->num_rows > 0) {
-    $error = "Kelas dengan nama dan angkatan ini sudah ada!";
-  } else {
-    $stmt = $conn->prepare("UPDATE kelas SET nama_kelas=?, angkatan=? WHERE id_kelas=?");
-    $stmt->bind_param("ssi", $nama_kelas, $angkatan, $id);
-    $stmt->execute();
-    header("Location: kelas.php");
-    exit;
-  }
-}
 ?>
 
 <div class="container-fluid">
   <h2>Manajemen Kelas</h2>
 
-  <!-- Alert -->
   <?php if (isset($error)): ?>
     <div class="alert alert-danger"><?= $error ?></div>
   <?php endif; ?>
 
-  <!-- Search + Filter -->
-  <form method="GET" class="mb-3">
-    <div class="row g-2">
-      <div class="col-md-4">
-        <input type="text" name="search" class="form-control"
-          placeholder="Cari kelas..." value="<?= htmlspecialchars($keyword) ?>">
-      </div>
-
-      <div class="col-md-3">
-        <select name="angkatan" class="form-control">
-          <option value="">Filter Angkatan</option>
-          <option value="X" <?= $filter_angkatan == "X" ? "selected" : "" ?>>X</option>
-          <option value="XI" <?= $filter_angkatan == "XI" ? "selected" : "" ?>>XI</option>
-          <option value="XII" <?= $filter_angkatan == "XII" ? "selected" : "" ?>>XII</option>
-        </select>
-      </div>
-
-      <div class="col-md-2">
-        <button class="btn btn-primary w-100">Cari</button>
-      </div>
-
-      <div class="col-md-2">
-        <a href="kelas.php" class="btn btn-secondary w-100">Reset</a>
-      </div>
+  <!-- ================= SEARCH BAR (LIVE SEARCH) ================= -->
+  <div class="row mb-3 g-2">
+    <div class="col-md-4">
+      <input type="text" id="searchInput" class="form-control" placeholder="Cari kelas...">
     </div>
-  </form>
 
-  <!-- Form Tambah / Edit -->
+    <div class="col-md-3">
+      <select id="filterAngkatan" class="form-control">
+        <option value="">Filter Angkatan</option>
+        <option value="X">X</option>
+        <option value="XI">XI</option>
+        <option value="XII">XII</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ================= FORM TAMBAH / EDIT ================= -->
   <form method="post" class="mb-4">
     <div class="row g-2">
       <div class="col-md-5">
@@ -169,7 +97,7 @@ if (isset($_POST['update'])) {
     </div>
   </form>
 
-  <!-- Tabel -->
+  <!-- ================= TABLE ================= -->
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
       <thead class="table-primary">
@@ -181,8 +109,11 @@ if (isset($_POST['update'])) {
         </tr>
       </thead>
 
-      <tbody>
-        <?php while ($kelas = $result->fetch_assoc()): ?>
+      <tbody id="kelasTable">
+        <?php
+        $result = $conn->query("SELECT * FROM kelas ORDER BY id_kelas DESC");
+        while ($kelas = $result->fetch_assoc()):
+        ?>
           <tr>
             <td><?= $kelas['id_kelas'] ?></td>
             <td><?= htmlspecialchars($kelas['nama_kelas']) ?></td>
@@ -199,56 +130,25 @@ if (isset($_POST['update'])) {
     </table>
   </div>
 
-  <!-- PAGINATION -->
-  <nav>
-    <ul class="pagination">
-
-      <!-- First -->
-      <li class="page-item <?= ($page == 1) ? 'disabled' : '' ?>">
-        <a class="page-link"
-          href="?page=1&search=<?= urlencode($keyword) ?>&angkatan=<?= urlencode($filter_angkatan) ?>">
-          First
-        </a>
-      </li>
-
-      <!-- Prev -->
-      <li class="page-item <?= ($page == 1) ? 'disabled' : '' ?>">
-        <a class="page-link"
-          href="?page=<?= $page - 1 ?>&search=<?= urlencode($keyword) ?>&angkatan=<?= urlencode($filter_angkatan) ?>">
-          Prev
-        </a>
-      </li>
-
-      <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-        <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-          <a class="page-link"
-            href="?page=<?= $i ?>&search=<?= urlencode($keyword) ?>&angkatan=<?= urlencode($filter_angkatan) ?>">
-            <?= $i ?>
-          </a>
-        </li>
-      <?php endfor; ?>
-
-      <!-- Next -->
-      <li class="page-item <?= ($page == $totalPages) ? 'disabled' : '' ?>">
-        <a class="page-link"
-          href="?page=<?= $page + 1 ?>&search=<?= urlencode($keyword) ?>&angkatan=<?= urlencode($filter_angkatan) ?>">
-          Next
-        </a>
-      </li>
-
-      <!-- Last -->
-      <li class="page-item <?= ($page == $totalPages) ? 'disabled' : '' ?>">
-        <a class="page-link"
-          href="?page=<?= $totalPages ?>&search=<?= urlencode($keyword) ?>&angkatan=<?= urlencode($filter_angkatan) ?>">
-          Last
-        </a>
-      </li>
-
-    </ul>
-  </nav>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ====================== LIVE SEARCH ======================
+  function loadKelas() {
+    const keyword = document.getElementById("searchInput").value;
+    const angkatan = document.getElementById("filterAngkatan").value;
+
+    fetch("kelas_search.php?search=" + keyword + "&angkatan=" + angkatan)
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("kelasTable").innerHTML = data;
+      });
+  }
+
+  document.getElementById("searchInput").addEventListener("keyup", loadKelas);
+  document.getElementById("filterAngkatan").addEventListener("change", loadKelas);
+</script>
+
 </body>
 
 </html>

@@ -2,13 +2,11 @@
 include 'koneksi.php';
 $pageTitle = "Manajemen Mata Pelajaran";
 $pageLocation = "Mata Pelajaran";
-include 'layout.php'; // Layout dengan sidebar + header
+include 'layout.php';
 
 // Tambah mata pelajaran
 if (isset($_POST['tambah'])) {
   $nama = $_POST['nama'];
-
-  // Validasi agar mata pelajaran tidak duplikat
   $cek = $conn->query("SELECT * FROM mata_pelajaran WHERE nama='$nama'");
   if ($cek->num_rows > 0) {
     $error = "Mata pelajaran ini sudah ada!";
@@ -21,7 +19,7 @@ if (isset($_POST['tambah'])) {
   }
 }
 
-// Hapus mata pelajaran
+// Hapus mapel
 if (isset($_GET['hapus'])) {
   $id = $_GET['hapus'];
   $conn->query("DELETE FROM mata_pelajaran WHERE id_mapel=$id");
@@ -29,7 +27,7 @@ if (isset($_GET['hapus'])) {
   exit;
 }
 
-// Ambil data untuk edit
+// Edit mode
 $editMode = false;
 if (isset($_GET['edit'])) {
   $editMode = true;
@@ -37,12 +35,11 @@ if (isset($_GET['edit'])) {
   $editData = $conn->query("SELECT * FROM mata_pelajaran WHERE id_mapel=$id_edit")->fetch_assoc();
 }
 
-// Update mata pelajaran
+// Update mapel
 if (isset($_POST['update'])) {
   $id = $_POST['id_mapel'];
   $nama = $_POST['nama'];
 
-  // Cek duplikat selain dirinya sendiri
   $cek = $conn->query("SELECT * FROM mata_pelajaran WHERE nama='$nama' AND id_mapel!='$id'");
   if ($cek->num_rows > 0) {
     $error = "Nama mata pelajaran sudah digunakan!";
@@ -55,23 +52,23 @@ if (isset($_POST['update'])) {
   }
 }
 
-// Ambil semua data mapel
-$result = $conn->query("SELECT * FROM mata_pelajaran");
+// Ambil semua mapel
+$result = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
 ?>
 
 <div class="container-fluid">
   <h2>Manajemen Mata Pelajaran</h2>
 
-  <!-- Alert error -->
   <?php if (isset($error)): ?>
     <div class="alert alert-danger"><?= $error ?></div>
   <?php endif; ?>
 
-  <!-- Form tambah / edit mata pelajaran -->
+  <!-- Form tambah / edit -->
   <form method="post" class="mb-4">
     <div class="row g-2">
       <div class="col-md-10">
-        <input type="text" name="nama" placeholder="Nama Mata Pelajaran" class="form-control"
+        <input type="text" name="nama" placeholder="Nama Mata Pelajaran"
+          class="form-control"
           value="<?= $editMode ? htmlspecialchars($editData['nama']) : '' ?>" required>
       </div>
       <div class="col-md-2">
@@ -86,9 +83,13 @@ $result = $conn->query("SELECT * FROM mata_pelajaran");
     </div>
   </form>
 
-  <!-- Tabel data mata pelajaran -->
+  <!-- Search Bar -->
+  <input type="text" id="searchInput" class="form-control mb-3"
+    placeholder="Cari mata pelajaran...">
+
+  <!-- Table -->
   <div class="table-responsive">
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped" id="mapelTable">
       <thead class="table-primary">
         <tr>
           <th>ID</th>
@@ -103,8 +104,7 @@ $result = $conn->query("SELECT * FROM mata_pelajaran");
             <td><?= htmlspecialchars($mapel['nama']) ?></td>
             <td>
               <a href="mapel.php?edit=<?= $mapel['id_mapel'] ?>" class="btn btn-warning btn-sm">Edit</a>
-              <a href="mapel.php?hapus=<?= $mapel['id_mapel'] ?>"
-                class="btn btn-danger btn-sm"
+              <a href="mapel.php?hapus=<?= $mapel['id_mapel'] ?>" class="btn btn-danger btn-sm"
                 onclick="return confirm('Yakin ingin menghapus mata pelajaran ini?')">Hapus</a>
             </td>
           </tr>
@@ -114,10 +114,20 @@ $result = $conn->query("SELECT * FROM mata_pelajaran");
   </div>
 </div>
 
-<?php
-// Tutup main-content dan layout
-echo "</div>";
-?>
+<script>
+  // === Live Search Filtering ===
+  document.getElementById("searchInput").addEventListener("keyup", function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#mapelTable tbody tr");
+
+    rows.forEach(row => {
+      let nama = row.cells[1].textContent.toLowerCase();
+      row.style.display = nama.includes(filter) ? "" : "none";
+    });
+  });
+</script>
+
+<?php echo "</div>"; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

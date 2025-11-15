@@ -67,19 +67,17 @@ if ($filterAngkatan !== "") {
   <!-- FILTER ANGKATAN -->
   <form method="GET" class="mb-3">
     <div class="row g-2" style="max-width: 350px;">
-      <div class="col-8">
-        <select name="angkatan" class="form-select">
+      <div class="col-12">
+        <select name="angkatan" class="form-select" onchange="this.form.submit()">
           <option value="">-- Pilih Angkatan --</option>
           <option value="X" <?= $filterAngkatan == 'X' ? 'selected' : '' ?>>X</option>
           <option value="XI" <?= $filterAngkatan == 'XI' ? 'selected' : '' ?>>XI</option>
           <option value="XII" <?= $filterAngkatan == 'XII' ? 'selected' : '' ?>>XII</option>
         </select>
       </div>
-      <div class="col-4">
-        <button class="btn btn-primary w-100">Pilih</button>
-      </div>
     </div>
   </form>
+
 
   <!-- EXPORT PDF BUTTON -->
   <a href="export_roster_pdf.php?angkatan=<?= $filterAngkatan ?>"

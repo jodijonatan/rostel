@@ -1,0 +1,13 @@
+{
+  "name": "lenovo/rostel",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Jodi Jonatan",
+      "email": "jodijonatann@gmail.com"
+    }
+  ],
+  "require": {
+    "dompdf/dompdf": "^3.1"
+  }
+}

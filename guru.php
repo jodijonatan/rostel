@@ -2,7 +2,11 @@
 include 'koneksi.php';
 $pageTitle = "Manajemen Guru";
 $pageLocation = "Guru";
+// Memastikan layout.php yang modern (dengan link Font Awesome) di-include
 include 'layout.php';
+
+// ----------- PHP LOGIC (TIDAK BERUBAH) -----------
+// ... (Bagian logika PHP tetap sama seperti kode asli Anda)
 
 // ----------- TAMBAH GURU -----------
 if (isset($_POST['tambah'])) {
@@ -115,54 +119,123 @@ while ($u = $cekUnavailable->fetch_assoc()) {
 }
 ?>
 
+<style>
+  /* === Styling Tambahan untuk Halaman Guru === */
+  .card-form {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    /* Shadow yang lebih dalam */
+    border-radius: 12px;
+    border: none;
+  }
+
+  /* Styling Tabel Minimalis */
+  .table-modern {
+    border-radius: 8px;
+    overflow: hidden;
+    /* Penting untuk menjaga border-radius tabel */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    background-color: white;
+  }
+
+  .table-modern thead th {
+    background-color: #34495e;
+    /* Warna kepala tabel yang lebih gelap/profesional */
+    color: white;
+    border: none;
+    font-weight: 600;
+  }
+
+  .table-modern tbody tr {
+    transition: background-color 0.2s;
+  }
+
+  .table-modern tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .table-modern td,
+  .table-modern th {
+    border-color: #e9ecef;
+    /* Garis pemisah yang lebih halus */
+    padding: 12px 15px;
+  }
+
+  /* Styling untuk tombol di modal */
+  .modal-body .form-check {
+    padding: 8px 15px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+  }
+
+  .modal-body .form-check:hover {
+    background-color: #f1f1f1;
+  }
+</style>
+
 <div class="container-fluid">
-  <h2>Manajemen Guru</h2>
+  <h2 class="mb-4"><i class="fas fa-chalkboard-teacher me-2"></i>Manajemen Guru</h2>
 
   <?php if (isset($error)): ?>
-    <div class="alert alert-danger"><?= $error ?></div>
+    <div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i><?= $error ?></div>
   <?php endif; ?>
 
-  <form method="post" class="mb-4">
-    <div class="row g-2 align-items-center">
-      <div class="col-md-5">
-        <input type="text" name="nama" placeholder="Nama Guru" class="form-control"
-          value="<?= $editMode ? htmlspecialchars($editData['nama']) : '' ?>" required>
-      </div>
-
-      <div class="col-md-5">
-        <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#mapelModal" id="mapelButtonText">
-          <?= $editMapelNames ?>
-        </button>
-      </div>
-
-      <div class="col-md-2">
-        <?php if ($editMode): ?>
-          <input type="hidden" name="id_guru" value="<?= $editData['id_guru'] ?>">
-          <button type="submit" name="update" class="btn btn-success w-100">Update</button>
-          <a href="guru.php" class="btn btn-secondary w-100 mt-2">Batal</a>
-        <?php else: ?>
-          <button type="submit" name="tambah" class="btn btn-primary w-100">Tambah</button>
-        <?php endif; ?>
-      </div>
+  <div class="card card-form mb-4">
+    <div class="card-header bg-white pt-3 pb-2 border-bottom-0">
+      <h5 class="card-title mb-0 fw-bold"><?= $editMode ? "Edit Guru: " . htmlspecialchars($editData['nama']) : "Tambah Guru Baru" ?></h5>
     </div>
-    <div id="mapelInputs">
-      <?php if ($editMode): ?>
-        <?php foreach ($editMapel as $id_mapel): ?>
-          <input type="hidden" name="mapel[]" value="<?= $id_mapel ?>">
-        <?php endforeach; ?>
-      <?php endif; ?>
-    </div>
-  </form>
+    <div class="card-body pt-2">
+      <form method="post">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-5">
+            <label for="namaGuru" class="form-label visually-hidden">Nama Guru</label>
+            <input type="text" name="nama" id="namaGuru" placeholder="Nama Guru" class="form-control"
+              value="<?= $editMode ? htmlspecialchars($editData['nama']) : '' ?>" required>
+          </div>
 
-  <div class="row mb-3">
-    <div class="col-md-4">
+          <div class="col-md-5">
+            <label class="form-label visually-hidden">Pilih Mapel</label>
+            <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#mapelModal" id="mapelButtonText">
+              <i class="fas fa-book me-2"></i><?= $editMapelNames ?>
+            </button>
+          </div>
+
+          <div class="col-md-2 d-flex flex-column">
+            <?php if ($editMode): ?>
+              <input type="hidden" name="id_guru" value="<?= $editData['id_guru'] ?>">
+              <button type="submit" name="update" class="btn btn-success w-100 mb-2">
+                <i class="fas fa-save me-1"></i> Update
+              </button>
+              <a href="guru.php" class="btn btn-secondary w-100">
+                <i class="fas fa-times me-1"></i> Batal
+              </a>
+            <?php else: ?>
+              <button type="submit" name="tambah" class="btn btn-primary w-100">
+                <i class="fas fa-plus me-1"></i> Tambah
+              </button>
+            <?php endif; ?>
+          </div>
+        </div>
+        <div id="mapelInputs">
+          <?php if ($editMode): ?>
+            <?php foreach ($editMapel as $id_mapel): ?>
+              <input type="hidden" name="mapel[]" value="<?= $id_mapel ?>">
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row mb-3 align-items-center">
+    <div class="col-lg-3 col-md-5 mb-2 mb-md-0">
       <input type="text" id="searchGuru" class="form-control" placeholder="Cari nama guru...">
     </div>
 
-    <div class="col-md-3">
+    <div class="col-lg-2 col-md-4">
       <select id="sortSelect" class="form-select">
-        <option value="asc">Urutkan: Nama (A-Z)</option>
-        <option value="desc">Urutkan: Nama (Z-A)</option>
+        <option value="asc">Nama (A-Z)</option>
+        <option value="desc">Nama (Z-A)</option>
       </select>
     </div>
   </div>
@@ -170,13 +243,16 @@ while ($u = $cekUnavailable->fetch_assoc()) {
   <div class="modal fade" id="mapelModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Pilih Mata Pelajaran</h5>
+        <div class="modal-header bg-light">
+          <h5 class="modal-title"><i class="fas fa-tasks me-2"></i>Pilih Mata Pelajaran</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
         <div class="modal-body">
-          <?php while ($mapel = $mapelList->fetch_assoc()): ?>
+          <?php
+          // Reset pointer mapelList agar dapat diulang di modal
+          $mapelList->data_seek(0);
+          while ($mapel = $mapelList->fetch_assoc()): ?>
             <div class="form-check">
               <input class="form-check-input mapel-checkbox" type="checkbox"
                 value="<?= $mapel['id_mapel'] ?>"
@@ -191,20 +267,22 @@ while ($u = $cekUnavailable->fetch_assoc()) {
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="saveMapelBtn" data-bs-dismiss="modal">Simpan Pilihan</button>
+          <button type="button" class="btn btn-primary" id="saveMapelBtn" data-bs-dismiss="modal">
+            <i class="fas fa-check me-1"></i> Simpan Pilihan
+          </button>
         </div>
       </div>
     </div>
   </div>
 
   <div class="table-responsive mt-4">
-    <table class="table table-bordered table-striped" id="guruTable">
-      <thead class="table-primary">
+    <table class="table table-hover table-modern" id="guruTable">
+      <thead>
         <tr>
           <th>ID</th>
           <th>Nama</th>
           <th>Mata Pelajaran</th>
-          <th>Aksi</th>
+          <th class="text-center">Aksi</th>
         </tr>
       </thead>
 
@@ -217,19 +295,23 @@ while ($u = $cekUnavailable->fetch_assoc()) {
           ?>
           <tr>
             <td><?= $guru['id_guru'] ?></td>
-            <td class="namaGuru"><?= htmlspecialchars($guru['nama']) ?></td>
-            <td><?= $guru['mapel'] ?: '-' ?></td>
+            <td class="namaGuru fw-bold"><?= htmlspecialchars($guru['nama']) ?></td>
+            <td><?= $guru['mapel'] ?: '<span class="text-danger small">Belum diatur</span>' ?></td>
 
-            <td>
-              <a href="guru.php?edit=<?= $guru['id_guru'] ?>" class="btn btn-warning btn-sm">Edit</a>
+            <td class="text-center text-nowrap">
+              <a href="guru.php?edit=<?= $guru['id_guru'] ?>" class="btn btn-sm btn-outline-warning me-1" title="Edit">
+                <i class="fas fa-edit"></i>
+              </a>
 
               <a href="guru.php?hapus=<?= $guru['id_guru'] ?>"
-                onclick="return confirm('Yakin ingin menghapus?')"
-                class="btn btn-danger btn-sm">Hapus</a>
+                onclick="return confirm('Yakin ingin menghapus guru <?= htmlspecialchars($guru['nama']) ?>?')"
+                class="btn btn-sm btn-outline-danger me-1" title="Hapus">
+                <i class="fas fa-trash-alt"></i>
+              </a>
 
               <a href="guru_unavailable.php?id_guru=<?= $guru['id_guru'] ?>"
-                class="btn <?= $btnColor ?> btn-sm">
-                <?= $label ?>
+                class="btn <?= $btnColor ?> btn-sm text-white" title="<?= $label ?>">
+                <i class="fas fa-clock me-1"></i> <?= $label ?>
               </a>
             </td>
           </tr>
@@ -239,19 +321,20 @@ while ($u = $cekUnavailable->fetch_assoc()) {
   </div>
 </div>
 
+<?php echo "</div>"; ?>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
   // ========== SIMPAN MAPEL DARI MODAL + UPDATE TEXT TOMBOL ==========
   document.getElementById("saveMapelBtn").addEventListener("click", function() {
     const selected = Array.from(document.querySelectorAll(".mapel-checkbox:checked"));
-    // Ambil nama mapel dari label
     const names = selected.map(el => el.nextElementSibling.textContent.trim());
     const ids = selected.map(el => el.value);
 
     // 1. Update teks pada tombol Pilih Mapel
-    document.getElementById("mapelButtonText").textContent =
-      names.length ? names.join(", ") : "Pilih Mapel"; // Mengubah teks tombol
+    document.getElementById("mapelButtonText").innerHTML =
+      (names.length ? `<i class="fas fa-book me-2"></i>` : `<i class="fas fa-book me-2"></i>`) + (names.length ? names.join(", ") : "Pilih Mapel");
 
     // 2. Update hidden input untuk dikirim ke server
     const container = document.getElementById("mapelInputs");

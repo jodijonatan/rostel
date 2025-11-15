@@ -4,6 +4,15 @@ if (!isset($pageTitle)) $pageTitle = "Rostel";
 
 // Tentukan lokasi halaman untuk header
 if (!isset($pageLocation)) $pageLocation = "Dashboard";
+
+// Tentukan ikon untuk setiap halaman (diperlukan untuk navigasi yang lebih menarik)
+$navItems = [
+  'Dashboard' => ['url' => 'index.php', 'icon' => 'fa-tachometer-alt'],
+  'Guru' => ['url' => 'guru.php', 'icon' => 'fa-chalkboard-teacher'],
+  'Kelas' => ['url' => 'kelas.php', 'icon' => 'fa-school'],
+  'Mata Pelajaran' => ['url' => 'mapel.php', 'icon' => 'fa-book'],
+  'Roster' => ['url' => 'roster_view.php', 'icon' => 'fa-calendar-alt'],
+];
 ?>
 
 <!DOCTYPE html>
@@ -14,99 +23,163 @@ if (!isset($pageLocation)) $pageLocation = "Dashboard";
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= $pageTitle ?></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
   <style>
+    :root {
+      /* Warna Akses utama yang lebih tenang (misalnya Deep Blue atau Dark Grey) */
+      --sidebar-bg: #27374D;
+      /* Abu-abu gelap/Navy */
+      --sidebar-hover-bg: #405167;
+      --main-text-color: #34495e;
+      /* Teks utama lebih gelap */
+    }
+
     body {
       min-height: 100vh;
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f4f7f6;
+      /* Latar belakang lebih lembut */
     }
 
+    /* Styling Sidebar */
     .sidebar {
       height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      width: 220px;
-      background-color: #0d6efd;
+      width: 250px;
+      /* Lebar sedikit diperluas */
+      background-color: var(--sidebar-bg);
       color: white;
-      padding-top: 60px;
+      padding: 20px 0;
       z-index: 1000;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      /* Shadow ringan modern */
+      transition: width 0.3s;
     }
 
-    .sidebar h4 {
-      padding: 0 15px;
+    .sidebar-header {
+      color: #ecf0f1;
+      /* Warna header lebih terang */
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 0 20px 20px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 15px;
     }
 
     .sidebar a {
-      display: block;
-      color: white;
+      display: flex;
+      /* Menggunakan flexbox untuk ikon dan teks */
+      align-items: center;
+      color: rgba(255, 255, 255, 0.85);
       text-decoration: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      margin-bottom: 5px;
+      padding: 12px 20px;
+      margin: 0 10px 5px 10px;
+      border-radius: 8px;
+      /* Sudut lebih melingkar */
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .sidebar a i {
+      width: 30px;
+      /* Ruang tetap untuk ikon */
+      text-align: center;
+      margin-right: 10px;
     }
 
     .sidebar a.active,
     .sidebar a:hover {
-      background-color: #0b5ed7;
-      text-decoration: none;
+      background-color: var(--sidebar-hover-bg);
+      color: white;
+      /* Teks tetap putih atau terang */
+      font-weight: 600;
     }
 
+    /* Styling Header */
     .header {
-      height: 60px;
-      line-height: 60px;
-      padding-left: 240px;
+      height: 70px;
+      /* Tinggi sedikit ditambah */
+      display: flex;
+      align-items: center;
+      padding-left: 270px;
+      /* Sesuaikan dengan lebar sidebar + padding */
       padding-right: 20px;
-      background-color: #f8f9fa;
-      border-bottom: 1px solid #dee2e6;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       z-index: 500;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      /* Shadow halus untuk header */
     }
 
+    .header strong {
+      font-size: 1.5rem;
+      color: var(--main-text-color);
+    }
+
+    /* Styling Main Content */
     .main-content {
-      margin-left: 220px;
-      padding: 80px 20px 20px 20px;
-      /* Tambah padding top supaya tidak tertutup header */
+      margin-left: 250px;
+      padding: 100px 30px 30px 30px;
+      min-height: 100vh;
     }
 
-    @media (max-width: 768px) {
+    /* Responsif untuk Mobile */
+    @media (max-width: 992px) {
       .sidebar {
         width: 100%;
         height: auto;
         position: relative;
         padding-top: 10px;
+        box-shadow: none;
       }
 
       .header {
         padding-left: 20px;
+        position: relative;
+        height: auto;
+        line-height: normal;
+        display: block;
+        padding: 15px 20px;
       }
 
       .main-content {
         margin-left: 0;
-        padding-top: 80px;
+        padding: 30px 20px;
       }
     }
   </style>
 </head>
 
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column position-fixed">
-    <h4 class="text-center mb-4">Rostel</h4>
-    <a href="index.php" class="<?= ($pageLocation == "Dashboard") ? "active" : "" ?>">Dashboard</a>
-    <a href="guru.php" class="<?= ($pageLocation == "Guru") ? "active" : "" ?>">Guru</a>
-    <a href="kelas.php" class="<?= ($pageLocation == "Kelas") ? "active" : "" ?>">Kelas</a>
-    <a href="mapel.php" class="<?= ($pageLocation == "Mata Pelajaran") ? "active" : "" ?>">Mata Pelajaran</a>
-    <a href="roster_view.php" class="<?= ($pageLocation == "Roster") ? "active" : "" ?>">Roster</a>
+  <div class="sidebar d-flex flex-column">
+    <div class="sidebar-header">
+      ROSTEL APP
+    </div>
+
+    <nav class="flex-grow-1">
+      <?php foreach ($navItems as $name => $item): ?>
+        <a href="<?= $item['url'] ?>" class="nav-link <?= ($pageLocation == $name) ? "active" : "" ?>">
+          <i class="fas <?= $item['icon'] ?>"></i>
+          <?= $name ?>
+        </a>
+      <?php endforeach; ?>
+    </nav>
+
+    <div class="p-3 text-center small" style="color: rgba(255, 255, 255, 0.5);">
+      &copy; <?= date('Y') ?> Rostel.
+    </div>
   </div>
 
-  <!-- Header -->
   <div class="header">
     <strong><?= $pageLocation ?></strong>
   </div>
 
-  <!-- Main content -->
   <div class="main-content">

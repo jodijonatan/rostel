@@ -4,7 +4,7 @@ $pageTitle = "Manajemen Guru";
 $pageLocation = "Guru";
 include 'layout.php'; // Sidebar + header
 
-// Tambah guru
+// ----------- TAMBAH GURU -----------
 if (isset($_POST['tambah'])) {
   $nama = $_POST['nama'];
   $mapel_ids = $_POST['mapel'] ?? [];
@@ -26,7 +26,7 @@ if (isset($_POST['tambah'])) {
   }
 }
 
-// Hapus guru
+// ----------- HAPUS GURU -----------
 if (isset($_GET['hapus'])) {
   $id = $_GET['hapus'];
   $conn->query("DELETE FROM guru WHERE id_guru=$id");
@@ -34,7 +34,7 @@ if (isset($_GET['hapus'])) {
   exit;
 }
 
-// Ambil data guru untuk edit
+// ----------- AMBIL DATA EDIT GURU -----------
 $editMode = false;
 $editMapel = [];
 if (isset($_GET['edit'])) {
@@ -48,7 +48,7 @@ if (isset($_GET['edit'])) {
   }
 }
 
-// Update guru
+// ----------- UPDATE GURU -----------
 if (isset($_POST['update'])) {
   $id = $_POST['id_guru'];
   $nama = $_POST['nama'];
@@ -71,20 +71,28 @@ if (isset($_POST['update'])) {
   }
 }
 
-// Ambil daftar guru
+// ----------- FILTER SEARCH -----------
+$filter = "";
+if (isset($_GET['search']) && $_GET['search'] != "") {
+  $keyword = $conn->real_escape_string($_GET['search']);
+  $filter = "WHERE g.nama LIKE '%$keyword%'";
+}
+
+// ----------- AMBIL DAFTAR GURU -----------
 $result = $conn->query("
-  SELECT g.id_guru, g.nama, GROUP_CONCAT(m.nama SEPARATOR ', ') AS mapel
-  FROM guru g
-  LEFT JOIN guru_mapel gm ON g.id_guru = gm.id_guru
-  LEFT JOIN mata_pelajaran m ON gm.id_mapel = m.id_mapel
-  GROUP BY g.id_guru
-  ORDER BY g.id_guru ASC
+    SELECT g.id_guru, g.nama, GROUP_CONCAT(m.nama SEPARATOR ', ') AS mapel
+    FROM guru g
+    LEFT JOIN guru_mapel gm ON g.id_guru = gm.id_guru
+    LEFT JOIN mata_pelajaran m ON gm.id_mapel = m.id_mapel
+    $filter
+    GROUP BY g.id_guru
+    ORDER BY g.id_guru ASC
 ");
 
-// Ambil daftar mapel
+// ----------- AMBIL DAFTAR MAPEL -----------
 $mapelList = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
 
-// CEK GURU YANG PUNYA KETIDAKTERSEDIAAN
+// ----------- CEK KETIDAKTERSEDIAAN -----------
 $cekUnavailable = $conn->query("SELECT id_guru, COUNT(*) AS total FROM guru_unavailable GROUP BY id_guru");
 $dataUnavailable = [];
 while ($u = $cekUnavailable->fetch_assoc()) {
@@ -99,7 +107,21 @@ while ($u = $cekUnavailable->fetch_assoc()) {
     <div class="alert alert-danger"><?= $error ?></div>
   <?php endif; ?>
 
-  <!-- Form tambah/edit guru -->
+  <!-- ========== SEARCH BAR ========== -->
+  <form method="get" class="mb-3">
+    <div class="input-group" style="max-width:350px;">
+      <input type="text" name="search" class="form-control" placeholder="Cari nama guru..."
+        value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
+
+      <button class="btn btn-primary">Cari</button>
+
+      <?php if (isset($_GET['search']) && $_GET['search'] != ''): ?>
+        <a href="guru.php" class="btn btn-secondary">Reset</a>
+      <?php endif; ?>
+    </div>
+  </form>
+
+  <!-- ========== FORM TAMBAH / EDIT GURU ========== -->
   <form method="post" class="mb-4">
     <div class="row g-2 align-items-center">
       <div class="col-md-5">
@@ -137,11 +159,10 @@ while ($u = $cekUnavailable->fetch_assoc()) {
         <?php endif; ?>
       </div>
     </div>
-
     <div id="mapelInputs"></div>
   </form>
 
-  <!-- Modal mapel -->
+  <!-- ========== MODAL PILIH MAPEL ========== -->
   <div class="modal fade" id="mapelModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
@@ -171,7 +192,7 @@ while ($u = $cekUnavailable->fetch_assoc()) {
     </div>
   </div>
 
-  <!-- Tabel guru -->
+  <!-- ========== TABEL GURU ========== -->
   <div class="table-responsive mt-4">
     <table class="table table-bordered table-striped">
       <thead class="table-primary">

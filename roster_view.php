@@ -4,143 +4,86 @@ $pageTitle = "Lihat Roster";
 $pageLocation = "Roster";
 include 'layout.php';
 
-// Ambil semua kelas dari database
-$kelasList = $conn->query("SELECT * FROM kelas ORDER BY nama_kelas")->fetch_all(MYSQLI_ASSOC);
-
-// Definisi hari dan jam pelajaran
-$hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+// Daftar jam pelajaran
 $lesList = [
-  ['1', '08:00', '08:30'],
-  ['2', '08:30', '09:00'],
-  ['3', '09:00', '09:30'],
-  ['4', '09:30', '10:00'],
-  ['5', '10:30', '11:00'],
-  ['6', '11:00', '11:30'],
-  ['7', '11:30', '12:00'],
-  ['8', '12:00', '12:30'],
-  ['9', '13:20', '13:50'],
-  ['10', '13:50', '14:20'],
-  ['11', '14:20', '14:50'],
-  ['12', '14:50', '15:20']
+  ['07:30', '08:00'],
+  ['08:00', '08:30'],
+  ['08:30', '09:00'],
+  ['09:00', '09:30'],
+  ['09:30', '10:00'],
+  ['10:00', '10:30'],
+  ['10:30', '11:00'],
+  ['11:00', '11:30'],
+  ['11:30', '12:00'],
+  ['12:00', '12:30'],
+  ['12:30', '13:00'],
+  ['13:00', '13:30'],
+  ['13:30', '14:00'],
+  ['14:00', '14:30'],
+  ['14:30', '15:00'],
+  ['15:00', '15:30'],
 ];
 
 // Ambil data roster
-$q = "
-SELECT r.id_roster, g.nama AS guru, m.nama AS mapel, 
-       k.nama_kelas, r.hari, r.jam_mulai
-FROM roster r
-JOIN guru g ON r.id_guru = g.id_guru
-JOIN mata_pelajaran m ON r.id_mapel = m.id_mapel
-JOIN kelas k ON r.id_kelas = k.id_kelas
+$query = "
+  SELECT r.id_roster, g.nama AS guru, m.nama AS mapel,
+         k.nama_kelas, r.hari, r.jam_mulai, r.jam_selesai
+  FROM roster r
+  JOIN guru g ON r.id_guru = g.id_guru
+  JOIN mata_pelajaran m ON r.id_mapel = m.id_mapel
+  JOIN kelas k ON r.id_kelas = k.id_kelas
 ";
-$result = $conn->query($q);
+$result = $conn->query($query);
 
+// Bentuk array untuk tampilan tabel
 $rosterData = [];
 while ($r = $result->fetch_assoc()) {
   $jamKey = substr($r['jam_mulai'], 0, 5);
   $rosterData[$r['hari']][$jamKey][$r['nama_kelas']] =
     "{$r['mapel']}<br><small>{$r['guru']}</small>";
 }
+
+$kelasList = $conn->query("SELECT * FROM kelas ORDER BY nama_kelas");
 ?>
 
-<style>
-  .hari-vertikal {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    text-align: center;
-    vertical-align: middle;
-    font-weight: bold;
-    background-color: #f8f9fa;
-  }
-
-  .non-editable {
-    background-color: #f3e5f5 !important;
-    font-weight: bold;
-  }
-
-  .istirahat {
-    background-color: #ffe0b2 !important;
-    font-weight: bold;
-  }
-
-  .ibadah {
-    background-color: #dcedc8 !important;
-    font-weight: bold;
-  }
-
-  td,
-  th {
-    vertical-align: middle !important;
-    text-align: center;
-    font-size: 13px;
-  }
-
-  .table-bordered th,
-  .table-bordered td {
-    border: 1px solid #dee2e6;
-  }
-</style>
-
 <div class="container-fluid">
-  <h2 class="mb-4">Lihat Jadwal Roster (Admin)</h2>
+  <h2 class="mb-4">Lihat Jadwal (Roster)</h2>
 
   <div class="table-responsive">
     <table class="table table-bordered align-middle text-center">
       <thead class="table-primary">
         <tr>
-          <th>HARI</th>
-          <th>LES</th>
-          <th>WAKTU</th>
+          <th>Hari / Jam</th>
           <?php foreach ($kelasList as $kelas): ?>
             <th><?= htmlspecialchars($kelas['nama_kelas']) ?></th>
           <?php endforeach; ?>
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($hariList as $hari): ?>
-          <?php $printedHari = false; ?>
-          <?php foreach ($lesList as $jam):
-            $jamKey = $jam[1];
-            $barisKhusus = '';
-
-            // Tentukan baris khusus
-            if ($jam[0] == 4) $barisKhusus = 'UPACARA';
-            elseif ($jam[0] == 8) $barisKhusus = 'ISTIRAHAT';
-            elseif ($jam[0] == 9 && $hari == 'Rabu') $barisKhusus = 'IBADAH PAGI';
-            elseif ($hari == 'Jumat' && $jam[0] == 3) $barisKhusus = 'SKJ / EKSTRA';
-            elseif ($hari == 'Jumat' && $jam[0] == 5) $barisKhusus = 'IBADAH JUMAT';
-          ?>
+        <?php
+        $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        foreach ($hariList as $hari):
+          foreach ($lesList as $jam):
+            $jamKey = $jam[0];
+        ?>
             <tr>
-              <?php if (!$printedHari): ?>
-                <td rowspan="<?= count($lesList) ?>" class="hari-vertikal"><?= strtoupper($hari) ?></td>
-                <?php $printedHari = true; ?>
-              <?php endif; ?>
-
-              <td><?= $jam[0] ?></td>
-              <td><?= $jam[1] ?> - <?= $jam[2] ?></td>
-
-              <?php if ($barisKhusus): ?>
-                <td colspan="<?= count($kelasList) ?>"
-                  class="<?=
-                          $barisKhusus == 'ISTIRAHAT' ? 'istirahat' : (($barisKhusus == 'IBADAH PAGI' || $barisKhusus == 'IBADAH JUMAT') ? 'ibadah' : 'non-editable')
-                          ?>">
-                  <?= $barisKhusus ?>
-                </td>
-              <?php else: ?>
-                <?php foreach ($kelasList as $kelas):
-                  $isi = $rosterData[$hari][$jamKey][$kelas['nama_kelas']] ?? '';
+              <td><strong><?= $hari ?></strong><br><?= $jam[0] ?> - <?= $jam[1] ?></td>
+              <?php foreach ($kelasList as $kelas): ?>
+                <?php
+                $isi = $rosterData[$hari][$jamKey][$kelas['nama_kelas']] ?? '';
                 ?>
-                  <td class="editable-cell"
-                    data-hari="<?= $hari ?>"
-                    data-jam="<?= $jamKey ?>"
-                    data-kelas="<?= $kelas['id_kelas'] ?>">
-                    <?= $isi ?>
-                  </td>
-                <?php endforeach; ?>
-              <?php endif; ?>
+                <td class="editable-cell"
+                  data-hari="<?= $hari ?>"
+                  data-jam="<?= $jamKey ?>"
+                  data-kelas="<?= $kelas['id_kelas'] ?>">
+                  <?= $isi ?>
+                </td>
+              <?php endforeach; ?>
             </tr>
-          <?php endforeach; ?>
-        <?php endforeach; ?>
+        <?php
+          endforeach;
+        endforeach;
+        ?>
       </tbody>
     </table>
   </div>
@@ -151,7 +94,7 @@ while ($r = $result->fetch_assoc()) {
   <div class="modal-dialog">
     <form method="POST" id="editForm" action="roster_save.php" class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Tambah / Edit Jadwal</h5>
+        <h5 class="modal-title">Tambah/Edit Jadwal</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -161,7 +104,9 @@ while ($r = $result->fetch_assoc()) {
 
         <div class="mb-3">
           <label class="form-label">Pilih Guru</label>
-          <select name="id_guru" id="guruSelect" class="form-select" required></select>
+          <select name="id_guru" id="guruSelect" class="form-select" required>
+            <option value="">-- Pilih Guru --</option>
+          </select>
         </div>
 
         <div class="mb-3">
@@ -185,8 +130,6 @@ while ($r = $result->fetch_assoc()) {
 
   document.querySelectorAll('.editable-cell').forEach(cell => {
     cell.addEventListener('click', () => {
-      if (cell.closest('tr').querySelector('td[colspan]')) return;
-
       const hari = cell.dataset.hari;
       const jam = cell.dataset.jam;
       const kelas = cell.dataset.kelas;
@@ -195,7 +138,7 @@ while ($r = $result->fetch_assoc()) {
       document.getElementById('jamInput').value = jam;
       document.getElementById('kelasInput').value = kelas;
 
-      guruSelect.innerHTML = '<option>Memuat guru...</option>';
+      guruSelect.innerHTML = '<option value="">-- Memuat guru... --</option>';
       guruSelect.disabled = true;
       mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
       mapelSelect.disabled = true;
@@ -203,6 +146,7 @@ while ($r = $result->fetch_assoc()) {
       const modal = new bootstrap.Modal(document.getElementById('editModal'));
       modal.show();
 
+      // Ambil guru yang masih tersedia
       fetch(`get_available_guru.php?hari=${hari}&jam_mulai=${jam}`)
         .then(res => res.json())
         .then(data => {

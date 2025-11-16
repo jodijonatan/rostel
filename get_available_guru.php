@@ -1,6 +1,4 @@
 <?php
-// get_available_guru.php (Final Robust Version)
-
 include 'koneksi.php';
 header('Content-Type: application/json; charset=utf-8');
 
@@ -14,7 +12,7 @@ try {
   // 1. Validasi dan Ambil Input
   $hari = $_GET['hari'] ?? null;
   $jam_mulai = $_GET['jam_mulai'] ?? null;
-  $id_roster = $_GET['id_roster'] ?? 0; // Tambahkan input ini untuk mode EDIT
+  $id_roster = $_GET['id_roster'] ?? 0; // Input untuk mode EDIT
 
   if (!$hari || !$jam_mulai) {
     http_response_code(400);
@@ -24,24 +22,22 @@ try {
 
   // 2. Map Jam Mulai -> Jam Akhir (Sesuaikan dengan data yang Anda gunakan di DB)
   $les = [
-    '07:30' => '08:00', // Tambahan yang mungkin terlewat di kode Anda
+    '07:30' => '08:00',
     '08:00' => '08:30',
     '08:30' => '09:00',
     '09:00' => '09:30',
     '09:30' => '10:00',
-    '10:00' => '10:30', // Tambahan
+    '10:00' => '10:30',
     '10:30' => '11:00',
     '11:00' => '11:30',
     '11:30' => '12:00',
-    '12:00' => '12:30', // Tambahan
-    '12:30' => '13:00', // Tambahan
-    '13:00' => '13:30', // Tambahan
-    '13:30' => '14:00', // Tambahan
-    '14:00' => '14:30', // Tambahan
-    '14:30' => '15:00', // Tambahan
-    '15:00' => '15:30', // Tambahan
-    // Perhatikan perbedaan jam yang ada di kode Anda sebelumnya: '13:20'/'13:50'/'14:20'/'14:50'
-    // Saya menggunakan daftar jam dari `roster.php` yang Anda kirim sebelumnya
+    '12:00' => '12:30',
+    '12:30' => '13:00',
+    '13:00' => '13:30',
+    '13:30' => '14:00',
+    '14:00' => '14:30',
+    '14:30' => '15:00',
+    '15:00' => '15:30',
   ];
 
   if (!isset($les[$jam_mulai])) {

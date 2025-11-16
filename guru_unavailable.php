@@ -1,14 +1,9 @@
 <?php
 include 'koneksi.php';
 
-// ======== SETUP LAYOUT ========
-$pageTitle = "Atur Ketidaktersediaan Guru";
-$pageLocation = "Guru";
-include 'layout.php';
-
 // ======== CEK INPUT ========
 if (!isset($_GET['id_guru']) || empty($_GET['id_guru'])) {
-  // Tambahkan respons yang lebih user-friendly
+  // Respons yang lebih user-friendly
   echo '<div class="container-fluid mt-5"><div class="alert alert-danger">ID Guru tidak valid! Kembali ke halaman Guru.</div><a href="guru.php" class="btn btn-primary">Kembali</a></div>';
   include 'footer.php';
   exit;
@@ -24,7 +19,7 @@ if (!$guru) {
   exit;
 }
 
-// ================== PROSES SIMPAN (DIPERTAHANKAN LOGIKA YANG ADA) ==================
+// ================== PROSES SIMPAN ==================
 if (isset($_POST['simpan'])) {
   // Hapus data unavailable lama
   $conn->query("DELETE FROM guru_unavailable WHERE id_guru=$id_guru");
@@ -97,6 +92,11 @@ while ($row = $res->fetch_assoc()) {
 }
 
 $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+
+// ======== INCLUDE LAYOUT ========
+$pageTitle = "Atur Ketidaktersediaan Guru";
+$pageLocation = "Guru";
+include 'layout.php';
 ?>
 
 <style>
@@ -257,7 +257,7 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 <script>
   document.addEventListener('DOMContentLoaded', function() {
 
-    // --- LOGIKA UTAMA: FULL DAY CHECKBOX (Tidak ada perubahan) ---
+    // --- LOGIKA UTAMA: FULL DAY CHECKBOX ---
     document.querySelectorAll('.fullDayCheck').forEach(chk => {
       chk.addEventListener('change', function() {
         const hari = this.dataset.dayTarget;
@@ -278,7 +278,7 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
       });
     });
 
-    // --- LOGIKA KARTU: TOGGLE KETERSEDIAAN HARI (Perbaikan ada di sini!) ---
+    // --- LOGIKA KARTU: TOGGLE KETERSEDIAAN HARI ---
     document.querySelectorAll('.card-header-toggle').forEach(header => {
       header.addEventListener('click', function(e) {
         if (e.target.closest('.form-check')) return;
@@ -331,7 +331,7 @@ $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
       });
     });
 
-    // --- Logika untuk memastikan jam section tersembunyi/terlihat saat load (Tidak ada perubahan) ---
+    // --- Logika untuk memastikan jam section tersembunyi/terlihat saat load ---
     document.querySelectorAll('.day-card').forEach(card => {
       const dayCheckbox = card.querySelector('.day-checkbox');
       const fullDayCheck = card.querySelector('.fullDayCheck');

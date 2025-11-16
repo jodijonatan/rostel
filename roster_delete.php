@@ -1,6 +1,4 @@
 <?php
-// roster_delete.php (Enhanced Version - JSON Response & id_roster)
-
 include 'koneksi.php';
 header('Content-Type: application/json; charset=utf-8');
 

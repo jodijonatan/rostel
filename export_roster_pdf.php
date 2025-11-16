@@ -9,7 +9,7 @@
   $angkatan = isset($_GET['angkatan']) ? $_GET['angkatan'] : "";
   $title_angkatan = $angkatan ? "Angkatan " . htmlspecialchars($angkatan) : "Semua Angkatan";
 
-  // --- DAFTAR WAKTU DAN HARI (SAMA DENGAN SEBELUMNYA) ---
+  // --- DAFTAR WAKTU DAN HARI ---
   $lesList = [
     '07:15 - 08:00' => ['type' => 'UPACARA', 'data' => 'UPACARA', 'color' => '#8b4513'],
     '08:00 - 08:30' => ['type' => 'ROSTER', 'les' => 1, 'mulai' => '08:00'],
@@ -59,7 +59,7 @@
     $html = "<h1>Tidak ada data Roster atau Kelas untuk {$title_angkatan}.</h1>";
   } else {
 
-    // --- 2. CSS MODERN BARU (TERMASUK ROTASI) ---
+    // --- 2. CSS MODERN ---
     $html = "
       <style>
           body { font-family: 'Helvetica', sans-serif; font-size: 8px; margin: 0; padding: 0;}
@@ -169,7 +169,7 @@
 
         $html .= "<tr>";
 
-        // Baris Hari Vertikal (Rotasi)
+        // Baris Hari
         if ($isFirstRow) {
           // Baris pertama hari ini akan memiliki rowspan sepanjang jumlah jam
           $html .= "<td class='header-col' rowspan='" . count($lesList) . "'>

@@ -1,7 +1,7 @@
 <?php
 include 'koneksi.php';
 
-// Tambah mata pelajaran
+// Tambah mapel
 if (isset($_POST['tambah'])) {
   $nama = $_POST['nama'];
   $cek = $conn->query("SELECT * FROM mata_pelajaran WHERE nama='$nama'");
@@ -52,14 +52,14 @@ if (isset($_POST['update'])) {
 // Ambil semua mapel
 $result = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
 
-// ===== BARU INCLUDE LAYOUT =====
+// ===== INCLUDE LAYOUT =====
 $pageTitle = "Manajemen Mata Pelajaran";
 $pageLocation = "Mata Pelajaran";
 include 'layout.php';
 ?>
 
 <style>
-  /* === Styling Tambahan untuk Halaman Mapel (Sama seperti Guru/Kelas) === */
+  /* === Styling Tambahan === */
   .card-form {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     border-radius: 12px;

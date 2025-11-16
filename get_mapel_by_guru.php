@@ -1,5 +1,4 @@
 <?php
-// get_mapel_by_guru.php (Enhanced Robustness)
 include 'koneksi.php';
 header('Content-Type: application/json; charset=utf-8');
 

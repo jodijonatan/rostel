@@ -5,7 +5,7 @@ if (!isset($pageTitle)) $pageTitle = "Rostel";
 // Tentukan lokasi halaman untuk header
 if (!isset($pageLocation)) $pageLocation = "Dashboard";
 
-// Tentukan ikon untuk setiap halaman (diperlukan untuk navigasi yang lebih menarik)
+// Tentukan ikon untuk setiap halaman (untuk navigasi yang lebih menarik)
 $navItems = [
   'Dashboard' => ['url' => 'index.php', 'icon' => 'fa-tachometer-alt'],
   'Guru' => ['url' => 'guru.php', 'icon' => 'fa-chalkboard-teacher'],
@@ -27,12 +27,9 @@ $navItems = [
 
   <style>
     :root {
-      /* Warna Akses utama yang lebih tenang (misalnya Deep Blue atau Dark Grey) */
       --sidebar-bg: #27374D;
-      /* Abu-abu gelap/Navy */
       --sidebar-hover-bg: #405167;
       --main-text-color: #34495e;
-      /* Teks utama lebih gelap */
     }
 
     body {
@@ -40,7 +37,6 @@ $navItems = [
       margin: 0;
       font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: #f4f7f6;
-      /* Latar belakang lebih lembut */
     }
 
     /* Styling Sidebar */
@@ -50,19 +46,16 @@ $navItems = [
       top: 0;
       left: 0;
       width: 250px;
-      /* Lebar sedikit diperluas */
       background-color: var(--sidebar-bg);
       color: white;
       padding: 20px 0;
       z-index: 1000;
       box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-      /* Shadow ringan modern */
       transition: width 0.3s;
     }
 
     .sidebar-header {
       color: #ecf0f1;
-      /* Warna header lebih terang */
       text-transform: uppercase;
       font-weight: 700;
       letter-spacing: 1px;
@@ -73,20 +66,17 @@ $navItems = [
 
     .sidebar a {
       display: flex;
-      /* Menggunakan flexbox untuk ikon dan teks */
       align-items: center;
       color: rgba(255, 255, 255, 0.85);
       text-decoration: none;
       padding: 12px 20px;
       margin: 0 10px 5px 10px;
       border-radius: 8px;
-      /* Sudut lebih melingkar */
       transition: background-color 0.3s, color 0.3s;
     }
 
     .sidebar a i {
       width: 30px;
-      /* Ruang tetap untuk ikon */
       text-align: center;
       margin-right: 10px;
     }
@@ -95,18 +85,15 @@ $navItems = [
     .sidebar a:hover {
       background-color: var(--sidebar-hover-bg);
       color: white;
-      /* Teks tetap putih atau terang */
       font-weight: 600;
     }
 
     /* Styling Header */
     .header {
       height: 70px;
-      /* Tinggi sedikit ditambah */
       display: flex;
       align-items: center;
       padding-left: 270px;
-      /* Sesuaikan dengan lebar sidebar + padding */
       padding-right: 20px;
       background-color: #ffffff;
       border-bottom: 1px solid #e0e0e0;
@@ -116,7 +103,6 @@ $navItems = [
       right: 0;
       z-index: 500;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      /* Shadow halus untuk header */
     }
 
     .header strong {

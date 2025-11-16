@@ -2,7 +2,6 @@
 include 'koneksi.php';
 $pageTitle = "Dashboard Admin";
 $pageLocation = "Dashboard";
-// Pastikan layout.php yang modern (dengan link Font Awesome) di-include
 include 'layout.php';
 
 // Statistik
@@ -13,17 +12,14 @@ $total_roster = $conn->query("SELECT COUNT(*) as total FROM roster")->fetch_asso
 ?>
 
 <style>
-  /* CSS Tambahan untuk Dashboard Modern */
+  /* CSS untuk Dashboard Modern */
   .hero-dashboard {
     background: linear-gradient(135deg, #3498db, #2c3e50);
-    /* Gradient halus */
     color: white;
     padding: 4rem 2rem;
     border-radius: 15px;
-    /* Lebih rounded */
     text-align: center;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    /* Shadow lebih kuat */
     margin-bottom: 3rem;
   }
 
@@ -33,7 +29,6 @@ $total_roster = $conn->query("SELECT COUNT(*) as total FROM roster")->fetch_asso
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     color: var(--main-text-color);
-    /* Ambil warna teks dari layout */
     text-align: left;
     position: relative;
     overflow: hidden;
@@ -41,14 +36,12 @@ $total_roster = $conn->query("SELECT COUNT(*) as total FROM roster")->fetch_asso
 
   .stat-card:hover {
     transform: translateY(-5px);
-    /* Efek angkat saat hover */
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
 
   .card-icon {
     font-size: 2.5rem;
     opacity: 0.2;
-    /* Ikon besar sebagai watermark */
     position: absolute;
     top: 15px;
     right: 20px;
@@ -62,13 +55,11 @@ $total_roster = $conn->query("SELECT COUNT(*) as total FROM roster")->fetch_asso
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: #7f8c8d;
-    /* Judul lebih kalem */
   }
 
   .stat-card .fs-2 {
     font-weight: 700;
     color: var(--sidebar-bg);
-    /* Menggunakan warna sidebar sebagai aksen utama */
   }
 </style>
 

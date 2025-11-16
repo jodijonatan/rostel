@@ -1,9 +1,7 @@
 <?php
 include 'koneksi.php';
 
-// =============================
 //  TAMBAH KELAS
-// =============================
 if (isset($_POST['tambah'])) {
   $nama_kelas = $_POST['nama_kelas'];
   $angkatan = $_POST['angkatan'];
@@ -20,9 +18,7 @@ if (isset($_POST['tambah'])) {
   }
 }
 
-// =============================
 //  HAPUS KELAS
-// =============================
 if (isset($_GET['hapus'])) {
   $id = $_GET['hapus'];
   $conn->query("DELETE FROM kelas WHERE id_kelas=$id");
@@ -30,9 +26,7 @@ if (isset($_GET['hapus'])) {
   exit;
 }
 
-// =============================
 //  EDIT MODE
-// =============================
 $editMode = false;
 if (isset($_GET['edit'])) {
   $editMode = true;
@@ -40,9 +34,7 @@ if (isset($_GET['edit'])) {
   $editData = $conn->query("SELECT * FROM kelas WHERE id_kelas=$id_edit")->fetch_assoc();
 }
 
-// =============================
 //  UPDATE KELAS (DITAMBAHKAN/DIPERBAIKI)
-// =============================
 if (isset($_POST['update'])) {
   $id = $_POST['id_kelas'];
   $nama_kelas = $_POST['nama_kelas'];
@@ -61,19 +53,17 @@ if (isset($_POST['update'])) {
   }
 }
 
-// =============================
 //  AMBIL DATA KELAS
-// =============================
 $result = $conn->query("SELECT * FROM kelas ORDER BY angkatan ASC, nama_kelas ASC");
 
-// ======= SETELAH SEMUA LOGIKA PHP, BARU INCLUDE LAYOUT ======
+// ======= INCLUDE LAYOUT ======
 $pageTitle = "Manajemen Kelas";
 $pageLocation = "Kelas";
 include 'layout.php';
 ?>
 
 <style>
-  /* === Styling Tambahan untuk Halaman Kelas (Sama seperti Guru) === */
+  /* === Styling untuk Halaman Kelas === */
   .card-form {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     border-radius: 12px;
@@ -225,10 +215,6 @@ include 'layout.php';
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // Mengubah fungsionalitas Live Search menjadi JavaScript sederhana di frontend 
-  // agar tidak memerlukan file kelas_search.php terpisah.
-  // Catatan: Jika data sangat banyak, disarankan tetap menggunakan AJAX/PHP.
-
   function loadKelas() {
     const keyword = document.getElementById("searchInput").value.toLowerCase();
     const angkatanFilter = document.getElementById("filterAngkatan").value;
@@ -244,19 +230,6 @@ include 'layout.php';
       row.style.display = (keywordMatch && angkatanMatch) ? "" : "none";
     });
   }
-
-  // Jika Anda tetap ingin menggunakan AJAX (seperti di kode asli):
-  /* function loadKelas() {
-    const keyword = document.getElementById("searchInput").value;
-    const angkatan = document.getElementById("filterAngkatan").value;
-
-    fetch("kelas_search.php?search=" + keyword + "&angkatan=" + angkatan)
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("kelasTable").innerHTML = data;
-      });
-  }
-  */
 </script>
 
 </body>

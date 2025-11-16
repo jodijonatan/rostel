@@ -2,11 +2,9 @@
 include 'koneksi.php';
 
 // ----------- PHP LOGIC -----------
-
 // ----------- TAMBAH GURU -----------
 if (isset($_POST['tambah'])) {
   $nama = $_POST['nama'];
-  // Pastikan kunci 'mapel' ada, jika tidak, default ke array kosong
   $mapel_ids = $_POST['mapel'] ?? [];
 
   if (empty($mapel_ids)) {
@@ -113,14 +111,14 @@ while ($u = $cekUnavailable->fetch_assoc()) {
   $dataUnavailable[$u['id_guru']] = $u['total'];
 }
 
-// ======= SETELAH SEMUA LOGIKA, BARU INCLUDE LAYOUT ======
+// ======= INCLUDE LAYOUT ======
 $pageTitle = "Manajemen Guru";
 $pageLocation = "Guru";
 include 'layout.php';
 ?>
 
 <style>
-  /* === Styling Tambahan untuk Halaman Guru === */
+  /* === Styling untuk Halaman Guru === */
   .card-form {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     /* Shadow yang lebih dalam */
@@ -132,14 +130,12 @@ include 'layout.php';
   .table-modern {
     border-radius: 8px;
     overflow: hidden;
-    /* Penting untuk menjaga border-radius tabel */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     background-color: white;
   }
 
   .table-modern thead th {
     background-color: #34495e;
-    /* Warna kepala tabel yang lebih gelap/profesional */
     color: white;
     border: none;
     font-weight: 600;
@@ -156,7 +152,6 @@ include 'layout.php';
   .table-modern td,
   .table-modern th {
     border-color: #e9ecef;
-    /* Garis pemisah yang lebih halus */
     padding: 12px 15px;
   }
 

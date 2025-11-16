@@ -68,7 +68,6 @@ if ($filterAngkatan !== "") {
 <style>
   /* === Styling Tabel Roster Modern === */
   .table-roster {
-    /* Menggunakan font-size yang sedikit lebih kecil untuk tabel padat */
     font-size: 0.9rem;
     border-radius: 8px;
     overflow: hidden;
@@ -78,7 +77,6 @@ if ($filterAngkatan !== "") {
 
   .table-roster thead th {
     background-color: #34495e;
-    /* Header gelap */
     color: white;
     border: none;
     font-weight: 600;
@@ -88,11 +86,9 @@ if ($filterAngkatan !== "") {
   /* Styling Jam dan Hari */
   .time-cell {
     background-color: #f8f9fa;
-    /* Latar belakang kolom jam */
     font-weight: bold;
     color: #555;
     width: 150px;
-    /* Lebar tetap untuk kolom waktu/hari */
     border-right: 2px solid #ddd;
   }
 
@@ -100,19 +96,15 @@ if ($filterAngkatan !== "") {
   .editable-cell {
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
-    /* Memberi highlight pada sel yang ada isinya */
     background-color: #e8f5e9;
-    /* Light Green for filled cells (will be overridden if empty) */
   }
 
   .editable-cell:empty {
     background-color: #fff;
-    /* Putih bersih untuk sel kosong */
   }
 
   .editable-cell:hover {
     background-color: #c8e6c9;
-    /* Hover lebih terang */
     transform: scale(1.01);
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
   }
@@ -120,7 +112,6 @@ if ($filterAngkatan !== "") {
   /* Warna untuk sel yang kosong saat hover (untuk memudahkan edit) */
   .editable-cell:empty:hover {
     background-color: #ffe0b2;
-    /* Light Orange untuk sel kosong yang siap diisi */
   }
 
   .table-roster td,
@@ -414,7 +405,7 @@ if ($filterAngkatan !== "") {
       });
   }
 
-  // ========== 4. LOGIC SIMPAN (SUBMIT FORM) ==========
+  // ========== 4. LOGIC SUBMIT FORM ==========
   form.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -441,7 +432,7 @@ if ($filterAngkatan !== "") {
       });
   });
 
-  // ========== 5. LOGIC HAPUS (DELETE) ==========
+  // ========== 5. LOGIC DELETE ==========
   deleteBtn.addEventListener('click', () => {
     const rosterId = document.getElementById('rosterIdInput').value;
 

@@ -1,6 +1,4 @@
 <?php
-// roster_save.php (Enhanced Version - JSON Response)
-
 include 'koneksi.php';
 header('Content-Type: application/json; charset=utf-8');
 

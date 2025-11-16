@@ -1,12 +1,7 @@
 <?php
 include 'koneksi.php';
-$pageTitle = "Manajemen Guru";
-$pageLocation = "Guru";
-// Memastikan layout.php yang modern (dengan link Font Awesome) di-include
-include 'layout.php';
 
-// ----------- PHP LOGIC (TIDAK BERUBAH) -----------
-// ... (Bagian logika PHP tetap sama seperti kode asli Anda)
+// ----------- PHP LOGIC -----------
 
 // ----------- TAMBAH GURU -----------
 if (isset($_POST['tambah'])) {
@@ -117,6 +112,11 @@ $dataUnavailable = [];
 while ($u = $cekUnavailable->fetch_assoc()) {
   $dataUnavailable[$u['id_guru']] = $u['total'];
 }
+
+// ======= SETELAH SEMUA LOGIKA, BARU INCLUDE LAYOUT ======
+$pageTitle = "Manajemen Guru";
+$pageLocation = "Guru";
+include 'layout.php';
 ?>
 
 <style>

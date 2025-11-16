@@ -1,9 +1,5 @@
 <?php
 include 'koneksi.php';
-$pageTitle = "Manajemen Kelas";
-$pageLocation = "Kelas";
-// Memastikan layout.php yang modern (dengan link Font Awesome) di-include
-include 'layout.php';
 
 // =============================
 //  TAMBAH KELAS
@@ -69,6 +65,11 @@ if (isset($_POST['update'])) {
 //  AMBIL DATA KELAS
 // =============================
 $result = $conn->query("SELECT * FROM kelas ORDER BY angkatan ASC, nama_kelas ASC");
+
+// ======= SETELAH SEMUA LOGIKA PHP, BARU INCLUDE LAYOUT ======
+$pageTitle = "Manajemen Kelas";
+$pageLocation = "Kelas";
+include 'layout.php';
 ?>
 
 <style>

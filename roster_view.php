@@ -227,7 +227,7 @@ if ($filterAngkatan !== "") {
       </div>
 
       <div class="modal-body">
-        <p class="small text-muted mb-3">Mengatur jadwal untuk **<span id="displayHariJam"></span>** di kelas **<span id="displayKelas"></span>**.</p>
+        <p class="small text-muted mb-3">Mengatur jadwal untuk <span class="fw-bold" id="displayHariJam"></span> di kelas <span class="fw-bold" id="displayKelas"></span>.</p>
 
         <input type="hidden" name="roster_id" id="rosterIdInput" value="">
         <input type="hidden" name="hari" id="hariInput">

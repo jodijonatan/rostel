@@ -174,7 +174,7 @@ $navItems = [
     </nav>
 
     <div class="p-3 text-center small" style="color: rgba(255, 255, 255, 0.5);">
-      &copy; <?= date('Y') ?> Rostel.
+      &copy; <?= date('Y') ?> Rostel by Jodi Jonatan. All right reversed
     </div>
   </div>
 

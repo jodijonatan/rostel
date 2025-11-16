@@ -1,9 +1,5 @@
 <?php
 include 'koneksi.php';
-$pageTitle = "Manajemen Mata Pelajaran";
-$pageLocation = "Mata Pelajaran";
-// Memastikan layout.php yang modern (dengan link Font Awesome) di-include
-include 'layout.php';
 
 // Tambah mata pelajaran
 if (isset($_POST['tambah'])) {
@@ -55,6 +51,11 @@ if (isset($_POST['update'])) {
 
 // Ambil semua mapel
 $result = $conn->query("SELECT * FROM mata_pelajaran ORDER BY nama ASC");
+
+// ===== BARU INCLUDE LAYOUT =====
+$pageTitle = "Manajemen Mata Pelajaran";
+$pageLocation = "Mata Pelajaran";
+include 'layout.php';
 ?>
 
 <style>
